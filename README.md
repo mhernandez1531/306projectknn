@@ -1,8 +1,8 @@
 # 306projectknn
-# Mushroom Classification - K-Nearest Neighbors (KNN) Model
+# Mushroom Classification - K-Nearest Neighbors (KNN) Model & random forest model
 
 ## Project Overview
-This project classifies mushrooms as either edible or poisonous using machine learning models. The goal is to apply classification techniques to a mushroom dataset and compare model performances. This part of the project focuses on the **K-Nearest Neighbors (KNN)** model.
+This project classifies mushrooms as either edible or poisonous using machine learning models. The goal is to apply classification techniques to a mushroom dataset and compare model performances. This part of the project focuses on the **K-Nearest Neighbors (KNN)** model and the random forest model.
 
 ## Dataset
 We use the **Mushroom Dataset** from the [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Mushroom). The dataset includes 22 features describing mushroom properties, and the target variable is whether the mushroom is **edible** or **poisonous**.
@@ -22,7 +22,7 @@ The KNN model will be evaluated based on its classification accuracy and other m
 ## Team Members:
 - **Sophia**: Decision Tree Model
 - **Mahnoor**: Random Forest Model
-- **Mariana**: K-Nearest Neighbors (KNN) Model (this file)
+- **Mariana**: K-Nearest Neighbors (KNN) Model 
 
 ## References:
 - Mushroom Dataset: [UCI Repository](https://archive.ics.uci.edu/ml/datasets/Mushroom)
