@@ -6,7 +6,7 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 from sklearn.preprocessing import LabelEncoder
 
 # Load the dataset 
-file_path = r'C:\Users\syeda\Downloads\mushroom zip\agaricus-lepiota.data'
+file_path = 'agaricus-lepiota.data'
 df = pd.read_csv(file_path, header=None)
 
 # Add column names 
