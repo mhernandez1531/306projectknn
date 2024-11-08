@@ -5,7 +5,7 @@
 This project classifies mushrooms as either edible or poisonous using machine learning models. The goal is to apply classification techniques to a mushroom dataset and compare model performances. This part of the project focuses on the **K-Nearest Neighbors (KNN)** model and the random forest model.
 
 ## Dataset
-We use the **Mushroom Dataset** from the [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Mushroom). The dataset includes 22 features describing mushroom properties, and the target variable is whether the mushroom is **edible** or **poisonous**.
+We use the **Mushroom Dataset** from the [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Mushroom). The dataset includes 22 features describing mushroom properties, and the target variable is whether the mushroom is **edible** or **poisonous**. The dataset file is provided in this repo as agaricus-lepiota.data.
 
 ## K-Nearest Neighbors (KNN) Model
 
@@ -18,6 +18,17 @@ We use the **Mushroom Dataset** from the [UCI Machine Learning Repository](https
 
 ### Expected Outcome
 The KNN model will be evaluated based on its classification accuracy and other metrics, and its performance will be compared to Decision Tree and Random Forest models to identify the best classifier.
+
+## Random Forest Model
+
+### Implementation Steps:
+1. **Data Preprocessing**: The dataset is preprocessed by handling missing values and encoding categorical features using LabelEncoder.
+2. **Model Training**: A Random Forest Classifier from sklearn.ensemble is trained using 100 estimators (trees).
+3. **Model Evaluation**: The model's accuracy is evaluated. A classification report and confusion matrix are generated to showcase performance.
+4. **Feature Importance**: Feature importances are calculated.
+
+### Expected Outcome:
+The Random Forest model aims to acheive an accuracy of 100% on data classification,  provides feature importances to show the most important features for classifying mushrooms.
 
 ## Team Members:
 - **Sophia**: Decision Tree Model
