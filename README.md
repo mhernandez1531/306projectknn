@@ -7,7 +7,7 @@ This project classifies mushrooms as either edible or poisonous using machine le
 ## Dataset
 We use the **Mushroom Dataset** from the [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Mushroom). The dataset includes 22 features describing mushroom properties, and the target variable is whether the mushroom is **edible** or **poisonous**. The dataset file is provided in this repo as agaricus-lepiota.data.
 
-## K-Nearest Neighbors (KNN) Model
+## K-Nearest Neighbors (KNN) Model (Mariana Hernandez)
 
 ### Implementation Steps:
 1. **Data Preprocessing**: Clean the data, handle missing values, and encode categorical features using `LabelEncoder`.
@@ -19,7 +19,7 @@ We use the **Mushroom Dataset** from the [UCI Machine Learning Repository](https
 ### Expected Outcome
 The KNN model will be evaluated based on its classification accuracy and other metrics, and its performance will be compared to Decision Tree and Random Forest models to identify the best classifier.
 
-## Random Forest Model
+## Random Forest Model (Mahnoor Aftab)
 
 ### Implementation Steps:
 1. **Data Preprocessing**: The dataset is preprocessed by handling missing values and encoding categorical features using LabelEncoder.
