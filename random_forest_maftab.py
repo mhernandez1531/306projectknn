@@ -65,22 +65,6 @@ plot_histograms(df, df['class'], "Feature Distribution by Class")
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
 rf.fit(X_encoded, y)
 
-# Visualize one tree from the Random Forest
-tree_index = 0  # Index of the tree to visualize
-tree = rf.estimators_[tree_index]
-
-dot_data = export_graphviz(
-    tree,
-    out_file=None,
-    feature_names=encoder.get_feature_names_out(X.columns),
-    class_names=['edible', 'poisonous'],
-    filled=True,
-    rounded=True,
-    special_characters=True
-)
-graph = graphviz.Source(dot_data)
-graph.render("random_forest_tree", format="png", cleanup=True)
-
 # Compute Hamming Distance Matrix
 hamming_distances = pairwise_distances(X_encoded, metric='hamming')
 
