@@ -107,8 +107,8 @@ plt.title("Random Forest Confusion Matrix")
 plt.xlabel("Predicted")
 plt.ylabel("Actual")
 plt.tight_layout()
-plt.savefig("rf_confusion_matrix.png")  # Saves the plot as an image
-plt.show()  # Displays the plot
+plt.savefig("rf_confusion_matrix.png")
+plt.show()
 
 # Accuracy, Precision, Recall, F1 Score Comparison Chart
 models = ['Random Forest', 'K-NN', 'Decision Tree']
@@ -117,7 +117,7 @@ precision_scores = [rf_precision, knn_precision, dt_precision]
 recall_scores = [rf_recall, knn_recall, dt_recall]
 f1_scores = [rf_f1, knn_f1, dt_f1]
 
-# Create the comparison bar chart
+
 bar_width = 0.2
 index = range(len(models))
 
@@ -134,4 +134,4 @@ ax.set_xticks([i + 1.5 * bar_width for i in index])
 ax.set_xticklabels(models)
 ax.legend()
 plt.tight_layout()
-plt.show()  # Displays the comparison chart
+plt.show()
