@@ -3,15 +3,13 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.model_selection import train_test_split, cross_validate
+from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.tree import export_graphviz
-from sklearn.metrics import make_scorer, accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
-from sklearn.neighbors import NearestNeighbors
-from sklearn.metrics import pairwise_distances
-import graphviz
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
 # Load the dataset
 file_path = 'agaricus-lepiota.data'
@@ -27,6 +25,8 @@ df.columns = ['class', 'cap-shape', 'cap-surface', 'cap-color', 'bruises', 'odor
 
 # Replace '?' with NaN and handle missing data
 df.replace('?', np.nan, inplace=True)
+
+# Handle missing values using SimpleImputer (impute with the most frequent value)
 imputer = SimpleImputer(strategy='most_frequent')  # Impute with the most frequent value
 df.iloc[:, :] = imputer.fit_transform(df)
 
@@ -40,89 +40,98 @@ X = df.drop('class', axis=1)
 y = df['class']
 
 # One-hot encode categorical features
-encoder = OneHotEncoder(sparse_output=False)
+encoder = OneHotEncoder(sparse_output=False)  # Updated for latest version
 X_encoded = encoder.fit_transform(X)
-
-# Create histograms
-def plot_histograms(data, class_col, title):
-    fig, axes = plt.subplots(nrows=5, ncols=5, figsize=(15, 15))
-    axes = axes.flatten()
-    for i, column in enumerate(data.columns):
-        sns.histplot(data=data, x=column, hue=class_col, kde=False, ax=axes[i], palette="Set2")
-        axes[i].set_title(column)
-    plt.tight_layout()
-    plt.suptitle(title, y=1.02)
-    plt.savefig(f"{title.replace(' ', '_')}.png")
-    plt.show()
-
-# Overall histograms
-plot_histograms(df, None, "Overall Feature Distribution")
-
-# Histograms separated by class labels
-plot_histograms(df, df['class'], "Feature Distribution by Class")
 
 # Train Random Forest
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
 rf.fit(X_encoded, y)
 
-# Compute Hamming Distance Matrix
-hamming_distances = pairwise_distances(X_encoded, metric='hamming')
+# Train K-NN
+knn = KNeighborsClassifier(n_neighbors=5)
+knn.fit(X_encoded, y)
 
-# K-NN Model with Hamming Distance
-knn = NearestNeighbors(n_neighbors=5, metric='precomputed')
-knn.fit(hamming_distances)
+# Train Decision Tree
+dt = DecisionTreeClassifier(random_state=42)
+dt.fit(X_encoded, y)
 
-# Cross-Validation for Random Forest
-scoring = {
-    'accuracy': make_scorer(accuracy_score),
-    'precision': make_scorer(precision_score),
-    'recall': make_scorer(recall_score),
-    'f1': make_scorer(f1_score),
-}
-
-cv_results = cross_validate(rf, X_encoded, y, cv=5, scoring=scoring)
-print("Cross-Validation Results:")
-for metric, scores in cv_results.items():
-    if metric.startswith("test_"):
-        print(f"{metric}: Mean={np.mean(scores):.2f}, Std Dev={np.std(scores):.2f}")
-
-# Visualize Feature Importances
-importances = rf.feature_importances_
-features = encoder.get_feature_names_out(X.columns)
-
-plt.figure(figsize=(10, 8))
-sns.barplot(x=importances, y=features, palette="viridis")
-plt.title("Feature Importances")
-plt.xlabel("Importance")
-plt.ylabel("Feature")
-plt.tight_layout()
-plt.savefig("feature_importances.png")
-plt.show()
-
-# Generate Predictions and Confusion Matrix
+# Generate predictions and confusion matrix for Random Forest
 X_train, X_test, y_train, y_test = train_test_split(X_encoded, y, test_size=0.2, random_state=42)
-y_pred = rf.predict(X_test)
-conf_matrix = confusion_matrix(y_test, y_pred, labels=rf.classes_)
 
-# Visualize Confusion Matrix
+# Random Forest predictions
+rf_y_pred = rf.predict(X_test)
+rf_conf_matrix = confusion_matrix(y_test, rf_y_pred, labels=rf.classes_)
+
+# K-NN predictions
+knn_y_pred = knn.predict(X_test)
+knn_accuracy = accuracy_score(y_test, knn_y_pred)
+knn_precision = classification_report(y_test, knn_y_pred, output_dict=True)['accuracy']
+knn_recall = classification_report(y_test, knn_y_pred, output_dict=True)['macro avg']['recall']
+knn_f1 = classification_report(y_test, knn_y_pred, output_dict=True)['macro avg']['f1-score']
+
+# Decision Tree predictions
+dt_y_pred = dt.predict(X_test)
+dt_accuracy = accuracy_score(y_test, dt_y_pred)
+dt_precision = classification_report(y_test, dt_y_pred, output_dict=True)['accuracy']
+dt_recall = classification_report(y_test, dt_y_pred, output_dict=True)['macro avg']['recall']
+dt_f1 = classification_report(y_test, dt_y_pred, output_dict=True)['macro avg']['f1-score']
+
+# Random Forest metrics
+rf_accuracy = accuracy_score(y_test, rf_y_pred)
+rf_precision = classification_report(y_test, rf_y_pred, output_dict=True)['accuracy']
+rf_recall = classification_report(y_test, rf_y_pred, output_dict=True)['macro avg']['recall']
+rf_f1 = classification_report(y_test, rf_y_pred, output_dict=True)['macro avg']['f1-score']
+
+# Model Evaluation and Accuracy Comparison
+print("Random Forest Model Evaluation:")
+print(f"Accuracy: {rf_accuracy * 100:.2f}%")
+print("\nK-NN Model Evaluation:")
+print(f"Accuracy: {knn_accuracy * 100:.2f}%")
+print("\nDecision Tree Model Evaluation:")
+print(f"Accuracy: {dt_accuracy * 100:.2f}%")
+
+# Classification Report
+print("\nRandom Forest Classification Report:")
+print(classification_report(y_test, rf_y_pred))
+
+print("\nK-NN Classification Report:")
+print(classification_report(y_test, knn_y_pred))
+
+print("\nDecision Tree Classification Report:")
+print(classification_report(y_test, dt_y_pred))
+
+# Confusion Matrix Visualization for Random Forest
 plt.figure(figsize=(8, 6))
-sns.heatmap(conf_matrix, annot=True, fmt="d", cmap="Blues", xticklabels=['edible', 'poisonous'], yticklabels=['edible', 'poisonous'])
-plt.title("Confusion Matrix")
+sns.heatmap(rf_conf_matrix, annot=True, fmt="d", cmap="Blues", xticklabels=['edible', 'poisonous'], yticklabels=['edible', 'poisonous'])
+plt.title("Random Forest Confusion Matrix")
 plt.xlabel("Predicted")
 plt.ylabel("Actual")
 plt.tight_layout()
-plt.savefig("confusion_matrix.png")
-plt.show()
+plt.savefig("rf_confusion_matrix.png")  # Saves the plot as an image
+plt.show()  # Displays the plot
 
-# Print model evaluation
-print("\nRandom Forest Model Evaluation:")
-print(f"Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
-print("\nClassification Report:")
-from sklearn.metrics import classification_report
-print(classification_report(y_test, y_pred))
+# Accuracy, Precision, Recall, F1 Score Comparison Chart
+models = ['Random Forest', 'K-NN', 'Decision Tree']
+accuracies = [rf_accuracy, knn_accuracy, dt_accuracy]
+precision_scores = [rf_precision, knn_precision, dt_precision]
+recall_scores = [rf_recall, knn_recall, dt_recall]
+f1_scores = [rf_f1, knn_f1, dt_f1]
 
-# Print the first 5 rows and missing values summary
-print("\nFirst 5 Rows:")
-print(df.head())
-print("\nMissing Values Summary:")
-print(df.isnull().sum())
+# Create the comparison bar chart
+bar_width = 0.2
+index = range(len(models))
+
+fig, ax = plt.subplots(figsize=(10, 6))
+bar1 = ax.bar(index, accuracies, bar_width, label='Accuracy')
+bar2 = ax.bar([i + bar_width for i in index], precision_scores, bar_width, label='Precision')
+bar3 = ax.bar([i + 2 * bar_width for i in index], recall_scores, bar_width, label='Recall')
+bar4 = ax.bar([i + 3 * bar_width for i in index], f1_scores, bar_width, label='F1 Score')
+
+ax.set_xlabel('Models')
+ax.set_ylabel('Scores')
+ax.set_title('Comparison of KNN, Decision Tree, and Random Forest Models')
+ax.set_xticks([i + 1.5 * bar_width for i in index])
+ax.set_xticklabels(models)
+ax.legend()
+plt.tight_layout()
+plt.show()  # Displays the comparison chart
