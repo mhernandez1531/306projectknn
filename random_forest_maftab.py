@@ -9,6 +9,10 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder
 
+# Configure Matplotlib backend for interactive display
+import matplotlib
+matplotlib.use('TkAgg')  # Use TkAgg backend for interactive plots
+
 # Load the dataset
 file_path = 'agaricus-lepiota.data'
 df = pd.read_csv(file_path, header=None)
@@ -30,7 +34,7 @@ for column in df.columns:
 X = df.drop('class', axis=1)
 y = df['class']
 
-# Split data
+# Split data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Initialize and train KNN model
@@ -83,6 +87,7 @@ bar2 = ax.bar([i + bar_width for i in index], precision_scores, bar_width, label
 bar3 = ax.bar([i + 2 * bar_width for i in index], recall_scores, bar_width, label='Recall')
 bar4 = ax.bar([i + 3 * bar_width for i in index], f1_scores, bar_width, label='F1 Score')
 
+# Add labels and title
 ax.set_xlabel('Models')
 ax.set_ylabel('Scores')
 ax.set_title('Comparison of KNN, Decision Tree, and Random Forest Models')
@@ -90,10 +95,10 @@ ax.set_xticks([i + 1.5 * bar_width for i in index])
 ax.set_xticklabels(models)
 ax.legend()
 
-#  save the plot as an image
-import matplotlib
-matplotlib.use('Agg') 
+# Save the plot as an image
 plt.savefig("plot.png")  # Save the plot as an image
+print("Plot saved as 'plot.png'")
 
-plt.show()  # 
+# Display the plot interactively
+plt.show()
 
