@@ -1,3 +1,4 @@
+# Import libraries
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -24,23 +25,22 @@ df.columns = ['class', 'cap-shape', 'cap-surface', 'cap-color', 'bruises', 'odor
               'stalk-color-below-ring', 'veil-type', 'veil-color', 'ring-number',
               'ring-type', 'spore-print-color', 'population', 'habitat']
 
-# Replace '?' with NaN to signify missing data
+# Replace '?' with NaN and handle missing data
 df.replace('?', np.nan, inplace=True)
-
-# Handle missing data by imputing the most frequent value for categorical features
-imputer = SimpleImputer(strategy='most_frequent')
+imputer = SimpleImputer(strategy='most_frequent')  # Impute with the most frequent value
 df.iloc[:, :] = imputer.fit_transform(df)
 
-# Check for any remaining missing values
-print("\nMissing data info after imputation:")
-print(df.isnull().sum())  # Should be all zeros after imputation
+# Display first 5 rows and check for missing values
+print(df.head())
+print("\nMissing Values:")
+print(df.isnull().sum())
 
 # Separate features and target variable
 X = df.drop('class', axis=1)
 y = df['class']
 
 # One-hot encode categorical features
-encoder = OneHotEncoder(sparse=False)
+encoder = OneHotEncoder(sparse_output=False)
 X_encoded = encoder.fit_transform(X)
 
 # Create histograms
@@ -130,28 +130,15 @@ plt.tight_layout()
 plt.savefig("confusion_matrix.png")
 plt.show()
 
-# Display Data Info (First 5 rows and Missing Data Summary)
-print("\nFirst 5 rows of the dataset:")
-print(df.head())
-
-print("\nMissing data info (should be all zeros after imputation):")
-print(df.isnull().sum())
-
-# Random Forest Model Evaluation
+# Print model evaluation
 print("\nRandom Forest Model Evaluation:")
-accuracy = accuracy_score(y_test, y_pred)
-print(f"Accuracy: {accuracy * 100:.2f}%")
-
-# Classification Report
-from sklearn.metrics import classification_report
+print(f"Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
 print("\nClassification Report:")
+from sklearn.metrics import classification_report
 print(classification_report(y_test, y_pred))
 
-# Feature Importances
-feature_importances_df = pd.DataFrame({
-    'feature': features,
-    'importance': importances
-}).sort_values(by='importance', ascending=False)
-
-print("\nFeature Importances:")
-print(feature_importances_df)
+# Print the first 5 rows and missing values summary
+print("\nFirst 5 Rows:")
+print(df.head())
+print("\nMissing Values Summary:")
+print(df.isnull().sum())
