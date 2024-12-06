@@ -135,3 +135,6 @@ ax.set_xticklabels(models)
 ax.legend()
 plt.tight_layout()
 plt.show()
+
+plt.savefig("model_comparison_chart.png")
+plt.show()
