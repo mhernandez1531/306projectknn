@@ -35,7 +35,7 @@ X = df.drop('class', axis=1)
 y = df['class']
 
 # One-hot encode categorical features
-encoder = OneHotEncoder(sparse=False)
+encoder = OneHotEncoder(sparse_output=False)  # Changed to sparse_output=False
 X_encoded = encoder.fit_transform(X)
 
 # Create histograms
