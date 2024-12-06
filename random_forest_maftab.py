@@ -71,6 +71,9 @@ y_pred_rf = rf.predict(X_test)
 
 print("\nRandom Forest Model Evaluation:")
 accuracy_rf = accuracy_score(y_test, y_pred_rf)
+precision_rf = precision_score(y_test, y_pred_rf)
+recall_rf = recall_score(y_test, y_pred_rf)
+f1_rf = f1_score(y_test, y_pred_rf)
 print(f"Accuracy: {accuracy_rf * 100:.2f}%")
 print("\nClassification Report:")
 print(classification_report(y_test, y_pred_rf))
@@ -139,5 +142,3 @@ ax.legend()
 plt.savefig("plot.png")
 print("\nPlot saved as 'plot.png'.")
 plt.show()
-
-
