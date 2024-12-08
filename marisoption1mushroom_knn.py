@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Load the dataset
-df = pd.read_csv('/Users/marianahernandez/Downloads/agaricus-lepiota.data', header=None)  # Use the correct path to your dataset
+df = pd.read_csv('/Users/marianahernandez/Downloads/agaricus-lepiota.data', header=None)  
 
 # Define column names
 columns = ['class', 'cap-shape', 'cap-surface', 'cap-color', 'bruises', 'odor', 'gill-attachment',
