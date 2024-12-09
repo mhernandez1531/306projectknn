@@ -35,6 +35,18 @@ print(df.head())
 print("\nMissing Values:")
 print(df.isnull().sum())
 
+# Histograms separated by class labels
+for column in df.columns:
+    if column != 'class':
+        plt.figure(figsize=(12, 6))
+        sns.histplot(data=df, x=column, hue='class', multiple='dodge', shrink=0.8)
+        plt.title(f'Histogram of {column} (Separated by Class)')
+        plt.xlabel(column)
+        plt.ylabel('Frequency')
+        plt.tight_layout()
+        plt.savefig(f"histogram_{column}_by_class.png")  # Save
+        plt.show()
+
 # Histograms for the overall dataset
 for column in df.columns:
     if column != 'class':
