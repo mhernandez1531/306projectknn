@@ -1,89 +1,102 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import LabelEncoder
+import numpy as np
 
 # Load the dataset
-df = pd.read_csv('/Users/marianahernandez/Downloads/agaricus-lepiota.data', header=None)  # Use the correct path to your dataset
+df = pd.read_csv('/Users/marianahernandez/Downloads/agaricus-lepiota.data', header=None)  
 
-# The dataset doesn't have column names, so we will assign them
+# Define column names
 columns = ['class', 'cap-shape', 'cap-surface', 'cap-color', 'bruises', 'odor', 'gill-attachment',
            'gill-spacing', 'gill-size', 'gill-color', 'stalk-shape', 'stalk-root', 'stalk-surface-above-ring',
            'stalk-surface-below-ring', 'stalk-color-above-ring', 'stalk-color-below-ring', 'veil-type',
            'veil-color', 'ring-number', 'ring-type', 'spore-print-color', 'population', 'habitat']
 df.columns = columns
 
-# Preprocess the dataset
-# Encoding categorical variables to numerical values
-label_encoder = LabelEncoder()
-for column in df.columns:
-    df[column] = label_encoder.fit_transform(df[column])
+# Replace missing values denoted by '?' with NaN
+df.replace('?', np.nan, inplace=True)
 
-# Split the dataset into features (X) and target (y)
-X = df.drop('class', axis=1)  # 'class' is the target variable
+# Exploratory Data Analysis (EDA)
+print("Column Data Types:")
+print(df.dtypes)
+
+# Overall dataset distribution for all columns
+for col in df.columns:
+    sns.countplot(data=df, x=col)
+    plt.title(f'Distribution of {col}')
+    plt.xticks(rotation=45)
+    plt.show()
+
+# Split by class label and plot histograms
+for col in df.columns[1:]:  # Skip 'class'
+    sns.histplot(data=df, x=col, hue='class', multiple='dodge', shrink=0.8)
+    plt.title(f'{col} by Class')
+    plt.xticks(rotation=45)
+    plt.show()
+
+# Preprocess the dataset
+# Use OneHotEncoder for categorical data
+categorical_features = df.columns[1:]  # Exclude 'class'
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('cat', OneHotEncoder(), categorical_features)
+    ])
+
+# Impute missing values and preprocess in a pipeline
+pipeline = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='most_frequent')),
+    ('onehot', preprocessor)
+])
+
+X = df.drop('class', axis=1)
 y = df['class']
 
+# Apply the pipeline to transform features
+X_transformed = pipeline.fit_transform(X)
+
+# Encode the target variable ('class')
+y = y.map({'e': 0, 'p': 1})  # Encode 'e' (edible) as 0, 'p' (poisonous) as 1
+
 # Split data into training and test sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_transformed, y, test_size=0.3, random_state=42, stratify=y)
 
-# Initialize and train KNN model
-knn = KNeighborsClassifier(n_neighbors=5)
+# Initialize KNN with Hamming distance
+knn = KNeighborsClassifier(n_neighbors=5, metric='hamming')
+
+# Cross-validation to evaluate metrics
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+accuracy_scores = cross_val_score(knn, X_transformed, y, cv=cv, scoring='accuracy')
+precision_scores = cross_val_score(knn, X_transformed, y, cv=cv, scoring='precision')
+recall_scores = cross_val_score(knn, X_transformed, y, cv=cv, scoring='recall')
+f1_scores = cross_val_score(knn, X_transformed, y, cv=cv, scoring='f1')
+
+# Train the KNN model
 knn.fit(X_train, y_train)
-y_pred_knn = knn.predict(X_test)
+y_pred = knn.predict(X_test)
 
-# Model evaluation for KNN
-accuracy_knn = accuracy_score(y_test, y_pred_knn)
-precision_knn = precision_score(y_test, y_pred_knn)
-recall_knn = recall_score(y_test, y_pred_knn)
-f1_knn = f1_score(y_test, y_pred_knn)
+# Model evaluation on test set
+accuracy = accuracy_score(y_test, y_pred)
+precision = precision_score(y_test, y_pred)
+recall = recall_score(y_test, y_pred)
+f1 = f1_score(y_test, y_pred)
 
-# Initialize and train Decision Tree model
-dt = DecisionTreeClassifier(random_state=42)
-dt.fit(X_train, y_train)
-y_pred_dt = dt.predict(X_test)
+# Print cross-validation results
+print("Cross-Validation Metrics:")
+print(f"Accuracy: {accuracy_scores.mean():.4f} ± {accuracy_scores.std():.4f}")
+print(f"Precision: {precision_scores.mean():.4f} ± {precision_scores.std():.4f}")
+print(f"Recall: {recall_scores.mean():.4f} ± {recall_scores.std():.4f}")
+print(f"F1 Score: {f1_scores.mean():.4f} ± {f1_scores.std():.4f}")
 
-# Model evaluation for Decision Tree
-accuracy_dt = accuracy_score(y_test, y_pred_dt)
-precision_dt = precision_score(y_test, y_pred_dt)
-recall_dt = recall_score(y_test, y_pred_dt)
-f1_dt = f1_score(y_test, y_pred_dt)
-
-# Initialize and train Random Forest model
-rf = RandomForestClassifier(random_state=42)
-rf.fit(X_train, y_train)
-y_pred_rf = rf.predict(X_test)
-
-# Model evaluation for Random Forest
-accuracy_rf = accuracy_score(y_test, y_pred_rf)
-precision_rf = precision_score(y_test, y_pred_rf)
-recall_rf = recall_score(y_test, y_pred_rf)
-f1_rf = f1_score(y_test, y_pred_rf)
-
-# Comparison Bar Chart (including all models)
-models = ['KNN', 'Decision Tree', 'Random Forest']
-accuracies = [accuracy_knn, accuracy_dt, accuracy_rf]
-precision_scores = [precision_knn, precision_dt, precision_rf]
-recall_scores = [recall_knn, recall_dt, recall_rf]
-f1_scores = [f1_knn, f1_dt, f1_rf]
-
-bar_width = 0.2
-index = range(len(models))
-
-fig, ax = plt.subplots(figsize=(10, 6))
-bar1 = ax.bar(index, accuracies, bar_width, label='Accuracy')
-bar2 = ax.bar([i + bar_width for i in index], precision_scores, bar_width, label='Precision')
-bar3 = ax.bar([i + 2 * bar_width for i in index], recall_scores, bar_width, label='Recall')
-bar4 = ax.bar([i + 3 * bar_width for i in index], f1_scores, bar_width, label='F1 Score')
-
-ax.set_xlabel('Models')
-ax.set_ylabel('Scores')
-ax.set_title('Comparison of KNN, Decision Tree, and Random Forest Models')
-ax.set_xticks([i + 1.5 * bar_width for i in index])
-ax.set_xticklabels(models)
-ax.legend()
-plt.show()
+# Print test set results
+print("\nTest Set Metrics:")
+print(f"Accuracy: {accuracy:.4f}")
+print(f"Precision: {precision:.4f}")
+print(f"Recall: {recall:.4f}")
+print(f"F1 Score: {f1:.4f}")
