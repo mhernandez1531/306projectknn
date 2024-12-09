@@ -35,6 +35,18 @@ print(df.head())
 print("\nMissing Values:")
 print(df.isnull().sum())
 
+# Histograms for the overall dataset
+for column in df.columns:
+    if column != 'class':
+        plt.figure(figsize=(8, 6))
+        df[column].value_counts().plot(kind='bar', color='blue', alpha=0.7)
+        plt.title(f'Histogram of {column} (Overall)')
+        plt.xlabel(column)
+        plt.ylabel('Frequency')
+        plt.tight_layout()
+        plt.savefig(f"histogram_{column}_overall.png")  # Save
+        plt.show()
+
 # Separate features and target variable
 X = df.drop('class', axis=1)
 y = df['class']
