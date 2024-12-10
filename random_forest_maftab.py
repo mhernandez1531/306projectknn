@@ -61,17 +61,17 @@ for column in df.columns:
 X = df.drop('class', axis=1)
 y = df['class']
 
-# Stratified train-test split for balanced class distribution
+# train-test split for balanced class distribution
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)
 
 # One-hot encode categorical features independently for train and test
 encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore')
 X_encoded = encoder.fit_transform(X)
 
-# Train Random Forest with more restrictive parameters and cross-validation
+# Train Random Forest
 rf = RandomForestClassifier(random_state=42)
 
-# Adjusting the hyperparameters further to reduce overfitting
+# Adjusting to reduce overfitting
 param_grid = {
     'n_estimators': [50, 100],  # Limit the number of estimators
     'max_depth': [3, 5, 7],  # Further reduce depth of trees
@@ -92,7 +92,7 @@ print(f"Best Parameters: {grid_search.best_params_}")
 cv_scores = cross_val_score(best_rf, X_encoded, y, cv=StratifiedKFold(n_splits=5), scoring='accuracy')
 print(f"Cross-Validation Accuracy: {np.mean(cv_scores):.2f}%")
 
-# Fit the best model on the full training set
+
 X_train_encoded = encoder.transform(X_train)
 X_test_encoded = encoder.transform(X_test)
 best_rf.fit(X_train_encoded, y_train)
@@ -118,5 +118,5 @@ plt.title("Random Forest Confusion Matrix")
 plt.xlabel("Predicted")
 plt.ylabel("Actual")
 plt.tight_layout()
-plt.savefig("rf_confusion_matrix.png")  # Saves the plot as an image
-plt.show()  # Displays the plot
+plt.savefig("rf_confusion_matrix.png")  # Saves plot as an image
+plt.show()  # Display
