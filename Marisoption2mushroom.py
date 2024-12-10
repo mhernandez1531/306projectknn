@@ -9,6 +9,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report, accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_val_score
+from sklearn.decomposition import PCA
+from sklearn.model_selection import GridSearchCV
 
 
 # Dataset
@@ -24,10 +26,9 @@ df.columns = ['class', 'cap-shape', 'cap-surface', 'cap-color', 'bruises', 'odor
               'ring-type', 'spore-print-color', 'population', 'habitat']
 
 
+
 # Replace '?' with NaN and handle missing data
 df.replace('?', np.nan, inplace=True)
-
-
 
 
 # Handle missing values using SimpleImputer (impute with the most frequent value)
@@ -35,14 +36,10 @@ imputer = SimpleImputer(strategy='most_frequent')
 df.iloc[:, :] = imputer.fit_transform(df)
 
 
-
-
 # Display first 5 rows and check for missing values
 print(df.head())
 print("\nMissing Values:")
 print(df.isnull().sum())
-
-
 
 
 # Histograms separated by class labels (only for K-NN)
@@ -55,8 +52,6 @@ for column in df.columns:
         plt.ylabel('Frequency')
         plt.tight_layout()
         plt.show()
-
-
 
 
 # Histograms of overall dataset (only for K-NN)
@@ -75,26 +70,45 @@ for column in df.columns:
 X = df.drop('class', axis=1)
 y = df['class']
 
+
+
 # One-hot encode categorical features
 encoder = OneHotEncoder(sparse_output=False)
 X_encoded = encoder.fit_transform(X)
+
 
 # Normalize features (scaling)
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X_encoded)
 
 
+# Reduce dimensionality with PCA
+pca = PCA(n_components=0.95)  # Keep 95% of variance
+X_pca = pca.fit_transform(X_scaled)
+
+
 # Train/test split
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_pca, y, test_size=0.2, random_state=42)
 
 
-# Train K-NN with Hamming distance
-knn_hamming = KNeighborsClassifier(n_neighbors=5, metric='hamming')
+# Hyperparameter tuning for K-NN (n_neighbors)
+param_grid = {'n_neighbors': np.arange(1, 21)}
+grid_search = GridSearchCV(KNeighborsClassifier(metric='hamming'), param_grid, cv=5, scoring='accuracy')
+grid_search.fit(X_train, y_train)
+
+
+# Best value for n_neighbors
+print(f"Best n_neighbors: {grid_search.best_params_['n_neighbors']}")
+
+
+# Train K-NN with Hamming distance using the best n_neighbors
+knn_hamming = KNeighborsClassifier(n_neighbors=grid_search.best_params_['n_neighbors'], metric='hamming')
 knn_hamming.fit(X_train, y_train)
 
 
 # Generate predictions for K-NN with Hamming distance
 knn_hamming_y_pred = knn_hamming.predict(X_test)
+
 
 # Model Evaluation Metrics for K-NN with Hamming distance
 print("\nK-NN Model Evaluation with Hamming Distance:")
@@ -102,6 +116,7 @@ print(f"Accuracy: {accuracy_score(y_test, knn_hamming_y_pred) * 100:.2f}%")
 print(f"Precision: {precision_score(y_test, knn_hamming_y_pred, average='macro'):.4f}")
 print(f"Recall: {recall_score(y_test, knn_hamming_y_pred, average='macro'):.4f}")
 print(f"F1 Score: {f1_score(y_test, knn_hamming_y_pred, average='macro'):.4f}")
+
 
 # Confusion Matrix Visualization for K-NN with Hamming distance
 knn_hamming_conf_matrix = confusion_matrix(y_test, knn_hamming_y_pred, labels=knn_hamming.classes_)
@@ -115,9 +130,7 @@ plt.show()
 
 
 # Cross-validation scores for K-NN with Hamming distance
-cv_scores_knn_hamming = cross_val_score(knn_hamming, X_scaled, y, cv=5, scoring='accuracy')
-
-
+cv_scores_knn_hamming = cross_val_score(knn_hamming, X_pca, y, cv=10, scoring='accuracy')
 print(f"\nK-NN Model with Hamming Distance Cross-Validation Accuracy: {cv_scores_knn_hamming.mean():.4f} ± {cv_scores_knn_hamming.std():.4f}")
 
 
@@ -158,7 +171,7 @@ plt.show()
 
 # Correlation Matrix Visualization
 plt.figure(figsize=(10, 8))
-corr_matrix = np.corrcoef(X_scaled.T)
+corr_matrix = np.corrcoef(X_pca.T)
 sns.heatmap(corr_matrix, cmap='coolwarm', annot=False)
 plt.title('Feature Correlation Matrix')
 plt.show()
@@ -172,4 +185,3 @@ plt.xlabel("Class")
 plt.ylabel("Frequency")
 plt.tight_layout()
 plt.show()
-
