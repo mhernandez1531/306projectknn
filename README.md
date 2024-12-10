@@ -22,7 +22,7 @@ The KNN model will be evaluated based on its classification accuracy and other m
 ## Random Forest Model (Mahnoor Aftab)
 
 ### Implementation Steps:
-1. **Data Preprocessing**: The dataset is preprocessed by handling missing values and encoding categorical features using LabelEncoder.
+1. **Data Preprocessing**: The dataset is preprocessed by handling missing values and encoding categorical features using OneHotEncoder.
 2. **Model Training**: A Random Forest Classifier from sklearn.ensemble is trained using 100 estimators (trees).
 3. **Model Evaluation**: The model's accuracy is evaluated. A classification report and confusion matrix are generated to showcase performance.
 4. **Feature Importance**: Feature importances are calculated.
