@@ -11,7 +11,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_val_score
 
 
-# Dataset 
+# Dataset
 df = pd.read_csv('/Users/marianahernandez/Downloads/agaricus-lepiota.data', header=None)
 
 
@@ -51,7 +51,7 @@ for column in df.columns:
         plt.show()
 
 
-# Histograms of  overall dataset (only for K-NN)
+# Histograms of overall dataset (only for K-NN)
 for column in df.columns:
     if column != 'class':
         plt.figure(figsize=(8, 6))
@@ -123,11 +123,11 @@ print(classification_report(y_test, knn_hamming_y_pred))
 
 
 # Add Hamming distance results to the Model Comparison Bar Plot
-models = ['K-NN', 'K-NN (Hamming)']
-accuracies = [accuracy_score(y_test, knn_y_pred), accuracy_score(y_test, knn_hamming_y_pred)]
-precision_scores = [precision_score(y_test, knn_y_pred, average='macro'), precision_score(y_test, knn_hamming_y_pred, average='macro')]
-recall_scores = [recall_score(y_test, knn_y_pred, average='macro'), recall_score(y_test, knn_hamming_y_pred, average='macro')]
-f1_scores = [f1_score(y_test, knn_y_pred, average='macro'), f1_score(y_test, knn_hamming_y_pred, average='macro')]
+models = ['K-NN (Hamming)']
+accuracies = [accuracy_score(y_test, knn_hamming_y_pred)]
+precision_scores = [precision_score(y_test, knn_hamming_y_pred, average='macro')]
+recall_scores = [recall_score(y_test, knn_hamming_y_pred, average='macro')]
+f1_scores = [f1_score(y_test, knn_hamming_y_pred, average='macro')]
 
 
 bar_width = 0.2
@@ -142,11 +142,29 @@ bar4 = ax.bar(index + 3 * bar_width, f1_scores, bar_width, label='F1 Score')
 
 
 ax.set_xlabel('Models')
-ax.set_title('Model Comparison (K-NN with and without Hamming Distance)')
+ax.set_title('Model Evaluation (K-NN with Hamming Distance)')
 ax.set_xticks(index + bar_width * 1.5)
 ax.set_xticklabels(models)
 ax.legend()
 
 
+plt.tight_layout()
+plt.show()
+
+
+# Correlation Matrix Visualization
+plt.figure(figsize=(10, 8))
+corr_matrix = np.corrcoef(X_scaled.T)
+sns.heatmap(corr_matrix, cmap='coolwarm', annot=False)
+plt.title('Feature Correlation Matrix')
+plt.show()
+
+
+# Overall target distribution
+plt.figure(figsize=(8, 6))
+y.value_counts().plot(kind='bar', color='purple', alpha=0.7)
+plt.title("Target Variable Distribution")
+plt.xlabel("Class")
+plt.ylabel("Frequency")
 plt.tight_layout()
 plt.show()
